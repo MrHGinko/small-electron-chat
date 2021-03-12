@@ -25,6 +25,16 @@ app.on('ready', () => {
     })
 
     mainWindow.loadFile('./page/index.html');
+
+    const secondWindow = new BrowserWindow({
+        width: 1200,
+        height: 900,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        }
+    })
+    secondWindow.loadFile('./otherPage/index.html');
 })
 
 require('./js/wsserver');

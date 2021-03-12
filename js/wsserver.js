@@ -18,10 +18,10 @@ wsServer.on('connection', function (ws) {
         var data = JSON.parse(obj);
         switch (data.type) {
             case 'login':
-                console.log('Oops, someone is coming, who is he/she ?');
                 var str = JSON.stringify({
                     "name": data.name,
-                    "type": data.type
+                    "type": data.type,
+                    "msg": `${data.name} is coming, welcome to here ~`
                 });
                 wsServer.boardcast(str);
                 break;

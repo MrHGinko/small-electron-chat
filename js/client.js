@@ -1,3 +1,13 @@
+var os = require("os");
+var networkArr = os.networkInterfaces();
+
+const name = networkArr['以太网'][networkArr['以太网'].length - 1]?.address;
+const host = "ws://192.168.4.96:8801"
+
+console.log("hey, Your name is ", name);
+
+const form = phone.querySelector('.phone__form');
+
 var $ = function (v) {
     return document.querySelector(v);
 };
@@ -6,43 +16,13 @@ var $ = function (v) {
     var wsObj = null;
     var bb = $('#msg');
 
-    //发送信息
-    function sendMsg() {
-        var msg = bb.value;
-        var name = $("#name").value;
-
-        if (name == "" || name == null) {
-            alert("请设置您的昵称！");
-            return;
-        }
-        if (msg == "") {
-            alert("消息不能为空！");
-            return;
-        }
-        var type = "chatInfo";
-        var obj = { "name": name, "msg": msg, "type": type };
-        wsObj.send(JSON.stringify(obj));
-        bb.value = "";
-    }
-
-    $("#setName").addEventListener('click', function () {
-        name = $("#name").value;
-        if (name == "" || name == null || name == " ") {
-            alert('昵称不合法！');
-            return;
-        }
-
-        var name = $("#name").value;
+    wsObj = new WebSocket(host);   //建立连接
+    wsObj.onopen = function () {  //发送请求
+        console.log("OK, it's connect success ~");
         var msg = name + "已上线......"
         var type = "login";
         var obj = { "name": name, "msg": msg, "type": type };
-
         wsObj.send(JSON.stringify(obj));
-    })
-
-    wsObj = new WebSocket("ws://192.168.4.96:8801");   //建立连接
-    wsObj.onopen = function () {  //发送请求
-        console.log("连接状态", wsObj);
     };
 
     wsObj.onmessage = function (e) {  //获取后端响应
@@ -52,15 +32,14 @@ var $ = function (v) {
         switch (data.type) {
             case 'login':
                 var msg = data.msg;
-
+                addMessageChild(msg)
                 break;
             case 'chatInfo':
-                var name = data.name;
                 var msg = data.msg;
+                addMessageChild(msg);
                 break;
 
             case 'logout':
-                var msg = data.msg;
                 var msg = data.msg;
 
                 break;
@@ -76,8 +55,29 @@ var $ = function (v) {
         console.log("error");
     };
 
-    $("#send").onclick = function () {
-        //send:
-        sendMsg();
-    };
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // submit事件触发, 发送消息 但是添加子元素不在这 而在ws中
+        let value = form.querySelector('input').value;
+        var obj = { "name": name, "msg": value, "type": "chatInfo" };
+        wsObj.send(JSON.stringify(obj));
+    });
+
+    function addMessageChild(inValue, self = true) {
+        let value = inValue || form.querySelector('input').value;
+
+        if (value) {
+            // const chat = phone.querySelector('.phone__chat');
+            const chat = phone.querySelector('#wrap');
+            const message = document.createElement('p');
+            message.classList.add('chat--message');
+            self && message.classList.add('self');
+            message.textContent = value;
+            chat.appendChild(message);
+            setTimeout(() => {
+                chat.scroll(0, chat.scrollHeight - chat.offsetHeight)
+            }, 60);
+        }
+        form.reset();
+    }
 })();
