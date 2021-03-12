@@ -1,6 +1,10 @@
 var os = require("os");
 var networkArr = os.networkInterfaces();
 
+// 这里 以太网 取决于当前主机的网络适配器的命名,
+// macOS 会是 en4(来自我同事的主机)  而我当前使用的主机则名为 以太网.
+// name获取 来判断消息的来源, 以此来区分他人与自己的消息, 并体现在界面上.
+// self消息框会在右边, 而他人则会在左边
 const name = networkArr['以太网'][networkArr['以太网'].length - 1]?.address;
 const host = "ws://192.168.4.96:8801"
 
@@ -8,13 +12,8 @@ console.log("hey, Your name is ", name);
 
 const form = phone.querySelector('.phone__form');
 
-var $ = function (v) {
-    return document.querySelector(v);
-};
-
 (function () {
     var wsObj = null;
-    var bb = $('#msg');
 
     wsObj = new WebSocket(host);   //建立连接
     wsObj.onopen = function () {  //发送请求
@@ -36,7 +35,8 @@ var $ = function (v) {
                 break;
             case 'chatInfo':
                 var msg = data.msg;
-                addMessageChild(msg);
+                var getName = data.name;
+                addMessageChild(msg, getName == name);
                 break;
 
             case 'logout':

@@ -37,5 +37,7 @@ app.on('ready', () => {
     secondWindow.loadFile('./otherPage/index.html');
 })
 
+// 只需要有一方进行webSocket服务的搭建,
+// 其他人需要将这段代码注释, 避免报错
 require('./js/wsserver');
 
